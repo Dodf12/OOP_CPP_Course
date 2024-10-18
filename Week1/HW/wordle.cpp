@@ -12,18 +12,25 @@ I  relied heavily on the python file. I "translated"
 everything from python into C++ for the logic function.
 
 I wrote my own functionality as well commented out below. It uses similar 
-variable names as python file, but the algorithm is 100% original
+variable names as python file, but the algorithm is 100% original.
+
+I thought my logic was incorrect, since for double letters in teh guess,
+it did not mark the second letter with a -. It instead marked it with !.
+I consulted my friend Tate and asked him if his program did the same.
+It turns out that it was in the instructions that the python.cpp logic
+does the same thing. He said his logic was the same, and referred
+me to the hw1.pdf document.
+
+https://www.programiz.com/cpp-programming/library-function/cctype/toupper
+
+I used the above link to figure out how to capitalize letters using STL
+library. 
 */
 
 
 
 //Abhinav Pala 9/28/24
 
-/*
-https://www.programiz.com/cpp-programming/library-function/cctype/toupper
-
-I used the above link to figure out how to capitalize letters using STL
-library. 
 
 #include <iostream>
 #include <fstream>
@@ -40,17 +47,24 @@ const int NUM_GUESSES = 6;
 // helper function declarations
 string getWord();
 string getGuess();
+bool guessInList(vector<string> words, string guess);
 string processGuess(string guess, string secret);
 
-/* TODO: declare additional helper functions here */
 
-/* TODO: when done, give an overview of how your program works */
+/* 
+I use a for loop to give the user exactly 6 tries. It also
+breaks out of the loop and the program if the user gets it right,
+so that it does not keep running even after they guessed
+correctly. Game variable keeps track of number of guesses.
+If game =6, it prompts user to try again
+*/
 int main() {
 	/* TODO: modify this to give instructions and play the game */
 
 	string secret = getWord();
-	cout << "Secret: " << secret << endl; // for testing; remove later!
-
+	cout << "Secret: " << secret << endl; 
+	
+	//####################
 	//My Additions to CODE!
 	int game = 0;
 	for (game = 0; game<NUM_GUESSES;game++)
@@ -113,6 +127,9 @@ Then will capitalize the user input and return
 */
 string getGuess()
 {
+
+
+
 	string guess;
 
 	//Getting user input
@@ -131,9 +148,71 @@ string getGuess()
 		guess[i] = toupper(guess[i]);
 	};
 
-	return guess;
-}
+	//EXTRA CREDIT
 
+	//Getting words from teh file
+	ifstream f(FILENAME);
+	// read words line-by-line into a vector (array-like data structure)
+	vector<string> allWords;
+	string word;
+	while (getline(f,word)) {
+		allWords.push_back(word);
+	}
+	// close the file
+	f.close();
+	
+
+	 bool isInList = guessInList(allWords, guess);
+
+	 if (isInList == false)
+	 {
+	 	while (isInList == false)
+	 	{
+	 		cout << "Your guess is not a word, please enter a real word" << endl;
+	 		cin >> guess;
+
+	 		if (guessInList(allWords, guess) == true)
+	 		{
+	 			isInList = true;
+	 		};
+	 	};
+	};
+
+	return guess;
+};
+
+bool guessInList(vector<string> allWords, string guess)
+{
+	int count = 0;
+
+	for ( int i = 0; i< allWords.size(); i++)
+	{
+		if (guess == allWords.at(i))
+			{
+				count++;
+			};
+	};
+
+	if (count == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	};
+};
+
+
+
+//Takes user guess, and compares it to the word they are supposed to guess
+/*
+Takes the user guess, and user guess as the input. Runs through the user
+guess string, and compares each letter to the letters of the answer word
+Outputs star if the letter matches, ! if the letter is in the word,
+but not in the right place and - if the letter is not even in the secret
+word at all
+*/
 string processGuess(string guess, string secret)
 {
 	string response = " ";
@@ -170,7 +249,7 @@ string processGuess(string guess, string secret)
 		}
 	}
 	return response;
-	//Initialized with 5 spaces
+	//Initialized with 5 spaces. (I wrote this before I saw the python reference code)
 	// string checker = "     "; //The output that shows what letters are right, wrong, and partially correct
 
 	// for (int i = 0; i<5;i++)
