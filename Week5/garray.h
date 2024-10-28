@@ -12,10 +12,11 @@ class GArray {
 public:
   // constructor and dynamic memory management functions
   GArray() : size_(0), data_(nullptr) {} // a basic 0-arg constructor
-  //GArray(const GArray& other);
+  GArray(const GArray& other);
   //~GArray();
   //GArray& operator = (const GArray& rhs);
 
+  void operator =(const GArray& rhs);
   // mutator
   void insert(int val); // insert in new, slightly larger array
 
