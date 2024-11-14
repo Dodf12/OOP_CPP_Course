@@ -1,25 +1,18 @@
-
-// Implementation starter file for CSCI 60 Homework 5; due Wednesday 10/30/24
-// List any collaborators and write your name here
-
 // Name: Abhinav Pala
 // File: parity.cpp
 // File Location: SCU coursework folder in CSCI 60 Folder
-// Data 10-27-24
+// Date 11-6-24
 // Collaborators:
-/*Asked my friend Kevin since I was stuck on insert function.
-It would print
-E: 0 2 6 8 10
-O: 0 3 5 -1 7 0.
-
-He suggest I switch linse 98 and 99, and it worked when I did that.
-It was a very minor fix, that I wasn't able to catch since teh debug
-statements matche dup with what was supposed to be the correct output
+/*
+    I was getting a **malloc error, and didnt know what 
+    that so i had to google it.
 */
-#include "parity.h" // Do NOT add any additional libraries/namespaces!
+// Descrption: Implementation file for parity.h redone for HW 6
+
+#include "parity.h"
 
 // Two Argument Constructor
-Parity::Parity (int *a, size_t n)
+Parity::Parity(int *a, size_t n)
 {
     // Checks if there are no elements passed in, and assigns null pointer
     if (n == 0)
@@ -41,60 +34,69 @@ Parity::Parity (int *a, size_t n)
             */
             for (int i = 0; i < n; i++)
                 {
-                    insert(a[i]);
+                    insert (a[i]);
                 }
         }
 }
 
-//Copy COnstructor
+// Copy Constructor
 Parity::Parity(const Parity& rhs)
 {
     nEven_ = rhs.nEven_;
     nOdd_ = rhs.nOdd_;
 
-
     evens_ = new int[nEven_];
     odds_ = new int[nOdd_];
 
-    for (int i = 0; i < nEven_; i++) { evens_[i] = rhs.evens_[i]; }
-    for (int j = 0; j < nOdd_; j++) { odds_[j] = rhs.odds_[j]; }
+    for (int i = 0; i < nEven_; i++)
+        {
+            evens_[i] = rhs.evens_[i];
+        }
+    for (int j = 0; j < nOdd_; j++)
+        {
+            odds_[j] = rhs.odds_[j];
+        }
 }
 
-//Destructor
+// Destructor
 Parity::~Parity()
- {
-    delete evens_;
-    delete odds_;
+{
+    delete[] evens_;
+    delete[] odds_;
 
     evens_ = nullptr;
     odds_ = nullptr;
 
     nEven_ = 0;
     nOdd_ = 0;
- }
+}
 
-Parity& Parity::operator =(const Parity& rhs)
+// Overloaded = operator to perform a deep copy of values from rhs into lhs
+Parity& Parity::operator=(const Parity& rhs)
 {
-    cout << "Hi1" << endl;
     nEven_ = rhs.nEven_;
     nOdd_ = rhs.nOdd_;
 
-    cout << "Hi2" << endl;
-    delete evens_;
-    delete odds_;
+    // Delete lhs dynamic memory so I can reassign with rhs
+    delete[] evens_;
+    delete[] odds_;
 
-
-    cout << "Hi3" << endl;
     evens_ = new int[nEven_];
     odds_ = new int[nOdd_];
 
-    cout << "Hi4" << endl;
-    for (int i = 0; i < nEven_; i++) { evens_[i] = rhs.evens_[i]; }
-    for (int j = 0; j < nOdd_; j++) { odds_[j] = rhs.odds_[j]; }
+    for (int i = 0; i < nEven_; i++)
+        {
+            evens_[i] = rhs.evens_[i];
+        }
+    for (int j = 0; j < nOdd_; j++)
+        {
+            odds_[j] = rhs.odds_[j];
+        }
     return *this;
 }
 
-int Parity::min () const
+// From HW5
+int Parity::min() const
 {
     int min = INT_MAX;
 
@@ -117,7 +119,8 @@ int Parity::min () const
     return min;
 }
 
-int Parity::max () const
+// From HW5
+int Parity::max() const
 {
     int max = INT_MIN;
 
@@ -140,7 +143,8 @@ int Parity::max () const
     return max;
 }
 
-ostream &operator<< (ostream &out, const Parity &p)
+// From HW5
+ostream& operator<<(ostream& out, const Parity& p)
 {
     // Printing even numbers
     out << "E: ";
@@ -149,7 +153,7 @@ ostream &operator<< (ostream &out, const Parity &p)
             out << p.evens_[i] << " ";
         }
 
-    /* 
+    /*
     I cannot put endl in the for loop because it will
     print all the numbers in a different line, which
     is not the output requirement
@@ -167,117 +171,198 @@ ostream &operator<< (ostream &out, const Parity &p)
     return out;
 }
 
-
-void Parity::insert (int val)
+// The insert and remove function are the CURRENT HOMEWORK
+void Parity::insert(int val)
 {
-    int tempIndex = 0;
-    if ( val % 2 == 0)
+    // Stores index of where val should be stored
+    int index = 0;
+    int *tempArray = nullptr;
+
+    if (val % 2 == 0)
         {
-            if ( nEven_ % CAP == 0 )
+            // Only creates a new array if current size is multiple of Cap
+            if (nEven_ % CAP == 0)
                 {
-                    
+                    // Copy all values into tempArray
+                    tempArray = new int[nEven_ + CAP];
+                    for (int i = 0; i < nEven_; i++)
+                        {
+                            tempArray[i] = evens_[i];
+                        }
+
+                    // Set evens_ array to new one
+                    delete[] evens_;
+                    evens_ = tempArray;
+                    tempArray = nullptr;
                 }
 
-            int i = 0;
-            int *tempEvenArray = new int[nEven_++];
-            bool ifStatementUsed = false;
+            // Finds the index of the place where val must be inserted
+            index = 0;
+            while (val > evens_[index] && index < nEven_)
+                {
+                    index++;
+                }
 
-            cout << "total even numbers" << nEven_ << endl;
+            /*
+            Moves the elements to the right starting from the right edge to
+            the index of insertion
+            */
+            for (int i = nEven_; i > index; i--)
+                {
+                    evens_[i] = evens_[i - 1];
+                }
 
-            while (i < nEven_)
-            {
-                if (evens_[i] > val && ifStatementUsed == false) 
-                    { 
-                        tempEvenArray[i] = val;
-                        //cout << "New element " << tempEvenArray[i] << endl;
-                        ifStatementUsed = true;
-                    }
-                else if(evens_[i] > val && ifStatementUsed )
-                    {
-                       tempEvenArray[i] =  evens_[i];
-                    }
-                else
-                    {
-                        cout << evens_[i] << endl;
-                        tempEvenArray[i] = evens_[i];
-                        cout << "Wew element: " << tempEvenArray[i] << endl;
-                    }
-                i++;
-            }
-
-            delete[] evens_;
-            evens_ = tempEvenArray;
+            /*
+                Increments size variable of the even array and adds the value
+                at the correct index
+            */
+            nEven_++;
+            evens_[index] = val;
         }
-    // else
-    //     {
 
-    //     }
+    // If val is odd, it goes here. Exact same logic as top
+    else
+        {
+            if (nOdd_ % CAP == 0)
+                {
+                    tempArray = new int[nOdd_ + CAP];
+                    for (int i = 0; i < nOdd_; i++)
+                        {
+                            tempArray[i] = odds_[i];
+                        }
 
-    //Following code executes if val is even
-    // if (val % 2 == 0)
-    //     {
-    //         // Goes into if, if there are spots left22
-    //         if (nEven_ % CAP == 0)
-    //             {
-    //                 /*
-    //                 I know I could directly put the
-    //                 nEven_ + CAP in the array
-    //                 declaration, but I wanted to
-    //                 make it more readable
-    //                 */
+                    delete[] odds_;
+                    odds_ = tempArray;
+                    tempArray = nullptr;
+                }
 
-    //                 int newEvenSize = nEven_ + CAP;
-    //                 int *temp = new int[newEvenSize];
+            index = 0;
+            while (val > odds_[index] && index < nOdd_)
+                {
+                    index++;
+                }
 
-    //                 for (int i = 0; i < nEven_; i++)
-    //                     {
-    //                         temp[i] = evens_[i];
-    //                     }
+            for (int i = nOdd_; i > index; i--)
+                {
+                    odds_[i] = odds_[i - 1];
+                }
 
-    //                 delete[] evens_;
-    //                 evens_ = temp;
-
-    //                 evens_[nEven_] = val;
-    //                 nEven_++;
-    //             }
-    //         else
-    //             {
-    //                 evens_[nEven_] = val;
-    //                 nEven_++;
-    //             }
-    //     }
-
-    // else
-    //     {
-    //         if (nOdd_ % CAP == 0)
-    //             {
-    //                 int newOddSize = nOdd_ + CAP;
-
-    //                 int *temp2 = new int[newOddSize];
-
-    //                 for (int i = 0; i < nOdd_; i++)
-    //                     {
-    //                         temp2[i] = odds_[i];
-    //                     }
-    //                 delete[] odds_;
-    //                 odds_ = temp2;
-
-    //                 odds_[nOdd_] = val;
-    //                 nOdd_++;
-    //             }
-    //         else
-    //             {
-    //                 odds_[nOdd_] = val;
-    //                 nOdd_++;
-    //             }
-    //     }
+            nOdd_++;
+            odds_[index] = val;
+        }
 }
 
-size_t remove(int val)
-    {
-        return 0;
-    }
+// Removes all elements of val that are in the array
+size_t Parity::remove(int val)
+{
+    int *temp = nullptr;
 
+    // Tracks number of values in the array
+    int numOfVal = 0;
+
+    // Check if its even
+    if (val % 2 == 0)
+        {
+
+            for (int i = 0; i < nEven_; i++)
+                {
+                    // Doesnt add value if equal to array
+                    if (val == evens_[i])
+                        {
+                            numOfVal++;
+                        }
+                    // Adds to array only if not equal to value,
+                    // and adds it in place of val
+                    else
+                        {
+                            evens_[i - numOfVal] = evens_[i];
+                        }
+                }
+
+            // Decreasing size variable
+            nEven_ -= numOfVal;
+
+            // If val is not in array, returns 0(saves time)
+            if (numOfVal == 0)
+                {
+                    return 0;
+                }
+
+            // Resizing the array if it needs to be resized
+
+            /*
+                Resizing here in order to avoid having too many spaces allocated
+                for small array
+            */
+            /*
+                Updating at the end since I am removing an unkown amount of
+               elements. I knew how many I was adding in insert (one) so I could
+               adjust, but here I cannot.
+            */
+
+            /*
+                As discussed in office hours, I am resizing array based on
+               number of elements and CAP. For example, if I go from 11 to 8
+                elements, I decrease the cap from 15 to 10 in this logic.
+                I don't decrease it based on if the size is a multiple of 5
+                or not.
+            */
+
+            if (((nEven_ + numOfVal) / CAP) > (nEven_ / CAP))
+                {
+                    temp = new int[(((nEven_ / CAP) + 1) * CAP)];
+
+                    for (int i = 0; i < nEven_; i++)
+                        {
+                            temp[i] = evens_[i];
+                        }
+
+                    delete[] evens_;
+                    evens_ = temp;
+                }
+        }
+
+    // Exact same logic as above, except for odd
+    else
+        {
+            for (int i = 0; i < nOdd_; i++)
+                {
+                    if (val == odds_[i])
+                        {
+                            numOfVal++;
+                        }
+                    else
+                        {
+                            odds_[i - numOfVal] = odds_[i];
+                        }
+                }
+
+            nOdd_ -= numOfVal;
+
+            if (numOfVal == 0)
+                {
+                    return 0;
+                }
+
+            if (((nOdd_ + numOfVal) / CAP) > (nOdd_ / CAP))
+                {
+                    temp = new int[(((nOdd_ / CAP) + 1) * CAP)];
+
+                    for (int i = 0; i < nOdd_; i++)
+                        {
+                            temp[i] = odds_[i];
+                        }
+
+                    delete[] odds_;
+                    odds_ = temp;
+                    temp = nullptr;
+                }
+        }
+
+    return numOfVal;
+}
+
+// FROM HW 5
 // Odd Stub Function
 /*
 Logic:
@@ -290,7 +375,7 @@ I am checking for odd number of ODD integers.
 If there are, then the total sum will be odd.
 Otherwise it will be even
 */
-bool Parity::odd () const
+bool Parity::odd() const
 {
 
     if (nOdd_ % 2 == 0)

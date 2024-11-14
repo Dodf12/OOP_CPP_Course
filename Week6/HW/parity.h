@@ -23,7 +23,7 @@ public:
 
   // NEW and revised mutators (must meet specifications from assignment HO)
   void insert(int val); // adds a single copy of val, maintaining order
-  //size_t remove(int val); // removes ALL copies of val and returns # removed
+  size_t remove(int val); // removes ALL copies of val and returns # removed
 
   // accessors
   int min() const;
