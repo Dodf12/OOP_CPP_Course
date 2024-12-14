@@ -19,11 +19,11 @@ template <typename T, typename U>
 void minAmaxB(vector<T> , vector<U> );
 
 int main() {
-  //vectorTests();
-  //bagTests();
-  //testErase();
-  //testFastErase();
-  //testPlusEquals();
+  vectorTests();
+  bagTests();
+  testErase();
+  testFastErase();
+  testPlusEquals();
   testExtreme();
 
   return 0;
